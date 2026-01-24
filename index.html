@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIVERSITY VENTURES - Client Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #0f111a;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+    }
+    .dashboard {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #1b1f32;
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    }
+    h1 {
+        text-align: center;
+        color: #00ffc3;
+    }
+    .totals {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+    .totals div {
+        background: #252b45;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        width: 30%;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .totals div h3 {
+        color: #00ffc3;
+        margin-bottom: 10px;
+    }
+    .totals div p {
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .client-info, .transactions, .progress-section, .chart-section, .line-chart-section, .yield-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #252b45;
+        border-radius: 10px;
+    }
+    .client-info p, .transactions p {
+        margin: 5px 0;
+        font-size: 16px;
+    }
+    .transactions table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    .transactions th, .transactions td {
+        text-align: left;
+        padding: 10px;
+        border-bottom: 1px solid #444;
+    }
+    .transactions th {
+        color: #00ffc3;
+    }
+    .progress-bar {
+        position: relative;
+        height: 30px;
+        background-color: #2f3550;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    .progress-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #00ffc3, #00a7ff);
+        text-align: right;
+        line-height: 30px;
+        padding-right: 10px;
+        font-weight: bold;
+        border-radius: 15px;
+        transition: width 2s ease-in-out;
+    }
+    .remaining {
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    .chart-container {
+        width: 300px;
+        margin: 0 auto;
+    }
+    .line-chart-container {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+</style>
+</head>
+<body>
+<div class="dashboard">
+    <h1>DIVERSITY VENTURES</h1>
+
+    <!-- Dynamic Totals -->
+    <div class="totals">
+        <div>
+            <h3>Paid Amount</h3>
+            <p id="paid-amount">34,000 MT</p>
+        </div>
+        <div>
+            <h3>Remaining Amount</h3>
+            <p id="remaining-amount">9,200 MT</p>
+        </div>
+        <div>
+            <h3>Potential Yield</h3>
+            <p id="total-yield">92,275 MT</p>
+        </div>
+    </div>
+
+    <div class="client-info">
+        <h2>Client Information</h2>
+        <p><strong>Name:</strong> Claudia Cuamba Marracuene</p>
+        <p><strong>Location:</strong> Maputo</p>
+        <p><strong>Account Number:</strong> 876946669</p>
+        <p><strong>Investor ID:</strong> 583</p>
+    </div>
+
+    <div class="transactions">
+        <h2>Transaction History</h2>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Transaction</th>
+                <th>Amount (MT)</th>
+            </tr>
+            <tr title="Initial Investment - Paid fully">
+                <td>1</td>
+                <td>Initial Investment</td>
+                <td>12,600</td>
+            </tr>
+            <tr title="Withdrawal Gas Fee - Paid fully">
+                <td>2</td>
+                <td>Withdrawal Gas Fee</td>
+                <td>12,700</td>
+            </tr>
+            <tr title="Network Fee - Paid fully">
+                <td>3</td>
+                <td>Network Fee</td>
+                <td>10,000</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="progress-section">
+        <h2>Investment Progress</h2>
+        <div class="progress-bar">
+            <div class="progress-bar-fill" id="progress-fill">95%</div>
+        </div>
+        <p class="remaining" id="remaining-text">Remaining: 5% (9,200 MT)</p>
+    </div>
+
+    <div class="chart-section">
+        <h2>Paid vs Remaining</h2>
+        <div class="chart-container">
+            <canvas id="progressChart"></canvas>
+        </div>
+    </div>
+
+    <div class="line-chart-section">
+        <h2>Projected Profit Over Time</h2>
+        <div class="line-chart-container">
+            <canvas id="profitChart"></canvas>
+        </div>
+    </div>
+
+    <div class="yield-section">
+        <h2>Total Yield</h2>
+        <p>100% Paid Amount will yield a total of <strong>92,275 MT</strong></p>
+    </div>
+</div>
+
+<script>
+    // Dynamic amounts
+    const paid = 12600 + 12700 + 10000; // 34,300
+    const remaining = 9200;
+    const totalYield = 92275;
+
+    document.getElementById('paid-amount').innerText = paid.toLocaleString() + ' MT';
+    document.getElementById('remaining-amount').innerText = remaining.toLocaleString() + ' MT';
+    document.getElementById('total-yield').innerText = totalYield.toLocaleString() + ' MT';
+    document.getElementById('remaining-text').innerText = `Remaining: ${(remaining/(paid+remaining)*100).toFixed(2)}% (${remaining.toLocaleString()} MT)`;
+
+    // Animate progress bar
+    window.onload = function() {
+        const fill = document.getElementById('progress-fill');
+        const percentage = (paid / (paid + remaining) * 100).toFixed(2);
+        setTimeout(() => {
+            fill.style.width = percentage + '%';
+            fill.innerText = percentage + '%';
+            fill.style.background = percentage == 100 ? '#00ff7f' : 'linear-gradient(90deg, #00ffc3, #00a7ff)';
+        }, 100);
+    }
+
+    // Pie chart for paid vs remaining
+    const ctxPie = document.getElementById('progressChart').getContext('2d');
+    const progressChart = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: ['Paid', 'Remaining'],
+            datasets: [{
+                label: 'Investment Progress',
+                data: [paid, remaining],
+                backgroundColor: ['#00ffc3', '#ff4d4d'],
+                hoverOffset: 10,
+                borderWidth: 2,
+                borderColor: '#252b45'
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#ffffff', font: { size: 14 } }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+
+    // Line chart for projected profit over time
+    const ctxLine = document.getElementById('profitChart').getContext('2d');
+    const profitChart = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+            datasets: [{
+                label: 'Projected Profit (MT)',
+                data: [12000, 20000, 30000, 45000, 60000, 75000, 85000, totalYield],
+                backgroundColor: 'rgba(0, 255, 195, 0.2)',
+                borderColor: '#00ffc3',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#00a7ff',
+                pointBorderColor: '#fff',
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#00ffc3',
+                pointHoverBorderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#ffffff', font: { size: 14 } } },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { ticks: { color: '#ffffff' }, grid: { color: '#444' } },
+                y: { ticks: { color: '#ffffff' }, grid: { color: '#444' } }
+            }
+        }
+    });
+</script>
+</body>
+</html>
